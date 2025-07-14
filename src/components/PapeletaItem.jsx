@@ -59,11 +59,7 @@ function PapeletaItem({ papeleta }) {
       params.append('accion', 'generarPapeletaPDF');
       params.append('id_papeleta', papeleta.id_papeleta);
 
-      const response = await axios.post(
-        '/api/Controllers/PlanillaController/PapeletasController.php',
-        params,
-        { responseType: 'blob' } // <-- ¡Muy importante! Le decimos a Axios que esperamos un archivo
-      );
+    const response = await axios.post('https://gth.munimoche.gob.pe/Controllers/PlanillaController/PapeletasController.php', params, { responseType: 'blob' });
 
       // Creamos una URL temporal para el archivo recibido
       const url = window.URL.createObjectURL(new Blob([response.data]));

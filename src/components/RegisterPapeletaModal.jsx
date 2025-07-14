@@ -69,8 +69,7 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
         params.append(key, formData[key]);
       }
 
-      const response = await axios.post('/api/Controllers/PlanillaController/PapeletasController.php', params);
-      
+      const response = await axios.post('https://gth.munimoche.gob.pe/Controllers/PlanillaController/PapeletasController.php', params);      
       toast.dismiss(loadingToast); // Ocultamos el toast de "cargando"
 
       // Usamos '!=' para comparar, ya que el código de éxito puede ser "0" (string) o 0 (number)

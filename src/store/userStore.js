@@ -16,8 +16,7 @@ const useUserStore = create((set, get) => ({
       params.append('nro_documento', dni);
 
       // Usamos la ruta del proxy
-      const response = await axios.post('/api/Controllers/PlanillaController/PapeletasController.php', params);
-
+      const response = await axios.post('https://gth.munimoche.gob.pe/Controllers/PlanillaController/PapeletasController.php', params);
       if (response.data.codigo !== 0) {
         throw new Error(response.data.mensaje || 'DNI no encontrado o inválido.');
       }
