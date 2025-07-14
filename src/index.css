@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos base para un diseño limpio */
+body {
+    background-color: #468ace;
+    font-family: 'Inter', sans-serif;
+}
