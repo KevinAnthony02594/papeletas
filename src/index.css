@@ -4,6 +4,17 @@
 
 /* Estilos base para un diseño limpio */
 body {
-    background-color: #468ace;
+    background-color: #f5f5f5;
     font-family: 'Inter', sans-serif;
+}
+
+/* Para navegadores Webkit (Chrome, Safari, Edge, etc.) */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Para Firefox y otros */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE y Edge (versiones antiguas) */
+  scrollbar-width: none;  /* Firefox */
 }

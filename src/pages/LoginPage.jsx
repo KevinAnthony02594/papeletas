@@ -38,7 +38,7 @@ function LoginPage() {
     if (dni.length === 8 && !isLoading) {
       const success = await loginByDNI(dni);
       if (success) {
-        navigate('/dashboard');
+        navigate('/app/resumen');
       }
     }
   };

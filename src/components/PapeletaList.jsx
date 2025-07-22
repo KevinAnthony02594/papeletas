@@ -5,9 +5,6 @@ import { FiInbox, FiPlus } from 'react-icons/fi';
 
 function PapeletaList({ papeletas, onOpenModal }) {
 
-  // El estado vacío no necesita grandes cambios, ya es bastante bueno.
-  // Solo nos aseguramos de que el contenedor principal tenga una altura mínima
-  // para que no haya un salto visual brusco si se pasa de 0 a 1 papeleta.
   if (!papeletas || papeletas.length === 0) {
     return (
       <div className="text-center py-16 px-6 min-h-[40vh] flex flex-col items-center justify-center">
@@ -42,7 +39,7 @@ function PapeletaList({ papeletas, onOpenModal }) {
     <motion.div 
       // 1. Le damos una altura fija y scroll vertical.
       // h-[65vh] significa 65% de la altura de la pantalla. ¡Ajusta este valor si lo necesitas!
-      className="h-[65vh] overflow-y-auto p-4" 
+      className="h-[65vh] overflow-y-auto p-4 hide-scrollbar"
       variants={containerVariants}
       initial="hidden"
       animate="visible"

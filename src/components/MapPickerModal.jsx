@@ -1,8 +1,20 @@
 // src/components/MapPickerModal.jsx
-import React, { useState, useCallback, useEffect } from 'react';
-import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
+import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import L from 'leaflet'; // Importamos Leaflet para manejar el ícono
+import 'leaflet/dist/leaflet.css'; // ¡Muy importante! Importar los estilos de Leaflet
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiMapPin, FiCheck } from 'react-icons/fi';
+
+// --- Arreglo para el ícono por defecto de Leaflet ---
+// Esto es necesario porque a veces Webpack no encuentra los íconos por defecto.
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+});
+// --- Fin del arreglo ---
 
 const containerStyle = {
   width: '100%',
@@ -10,41 +22,49 @@ const containerStyle = {
 };
 
 // Coordenadas iniciales (Plaza de Armas de Moche, Perú)
-const initialCenter = {
-  lat: -8.1586,
-  lng: -79.0094
-};
+const initialCenter = [-8.1586, -79.0094];
 
-// Usamos el API Key de nuestro archivo .env
-const apiKey = import.meta.env.VITE_Maps_API_KEY;
+// Componente interno para manejar los clics en el mapa
+function LocationMarker({ onMarkerSet }) {
+  const [position, setPosition] = useState(null);
 
-function MapPickerModal({ isOpen, onClose, onLocationSelect }) {
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: apiKey,
+  useMapEvents({
+    click(e) {
+      setPosition(e.latlng);
+      onMarkerSet(e.latlng); // Avisamos al componente padre de la nueva posición
+    }
   });
 
+  return position === null ? null : (
+    <Marker position={position}></Marker>
+  );
+}
+
+
+function MapPickerModal({ isOpen, onClose, onLocationSelect }) {
   const [marker, setMarker] = useState(null);
   const [address, setAddress] = useState('Haz clic en el mapa para seleccionar una ubicación.');
 
-  const onMapClick = useCallback((e) => {
-    setMarker({
-      lat: e.latLng.lat(),
-      lng: e.latLng.lng(),
-    });
-  }, []);
-  
-  // Efecto para obtener la dirección cuando el marcador cambia (Reverse Geocoding)
+  // Efecto para obtener la dirección cuando el marcador cambia (Reverse Geocoding con Nominatim)
   useEffect(() => {
-    if (marker && window.google) {
-      const geocoder = new window.google.maps.Geocoder();
-      geocoder.geocode({ location: marker }, (results, status) => {
-        if (status === 'OK' && results[0]) {
-          setAddress(results[0].formatted_address);
-        } else {
-          setAddress('No se pudo obtener la dirección.');
-        }
-      });
+    if (marker) {
+      const { lat, lng } = marker;
+      setAddress('Buscando dirección...');
+      // Usamos la API gratuita de Nominatim (basada en OpenStreetMap)
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.display_name) {
+            setAddress(data.display_name);
+          } else {
+            setAddress('No se pudo obtener la dirección.');
+          }
+        })
+        .catch(() => {
+          setAddress('Error al buscar la dirección.');
+        });
+    } else {
+      setAddress('Haz clic en el mapa para seleccionar una ubicación.');
     }
   }, [marker]);
 
@@ -69,19 +89,19 @@ function MapPickerModal({ isOpen, onClose, onLocationSelect }) {
                 <h3 className="font-bold text-lg dark:text-white">Seleccionar Ubicación</h3>
             </header>
             <div className="relative flex-grow">
-              {isLoaded ? (
-                <GoogleMap
-                  mapContainerStyle={containerStyle}
-                  center={initialCenter}
-                  zoom={15}
-                  onClick={onMapClick}
-                >
-                  {marker && <MarkerF position={marker} />}
-                </GoogleMap>
-              ) : (
-                <div>Cargando mapa...</div>
-              )}
-               <div className="absolute bottom-4 left-4 right-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-lg shadow-lg text-sm dark:text-slate-200 flex items-center gap-2">
+              <MapContainer
+                center={initialCenter}
+                zoom={15}
+                scrollWheelZoom={true}
+                style={containerStyle}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <LocationMarker onMarkerSet={(latlng) => setMarker(latlng)} />
+              </MapContainer>
+               <div className="absolute bottom-4 left-4 right-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-lg shadow-lg text-sm dark:text-slate-200 flex items-center gap-2 z-[1000]">
                     <FiMapPin className="text-blue-500 flex-shrink-0"/>
                     <p className="truncate">{address}</p>
                 </div>

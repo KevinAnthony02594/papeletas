@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import useUserStore from '../store/userStore';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiSave, FiUser, FiFileText, FiClock, FiMap } from 'react-icons/fi';
-import toast from 'react-hot-toast'; // <-- Importamos toast
+import { FiX, FiSave, FiUser, FiFileText, FiClock, FiMapPin, FiMap } from 'react-icons/fi';
+import toast from 'react-hot-toast'; 
 import MapPickerModal from './MapPickerModal';
 
 function FormField({ label, children }) {
@@ -29,7 +29,7 @@ const initialFormData = {
 };
 
 function RegisterPapeletaModal({ isOpen, onClose }) {
-  const { userData, addPapeleta } = useUserStore();
+  const { userData, registerPapeleta } = useUserStore();
   const [formData, setFormData] = useState(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -50,11 +50,10 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
   const handleLocationSelect = (selectedAddress) => {
     setFormData(prev => ({ ...prev, lugar_destino: selectedAddress }));
   };
-  // --- LÓGICA DE ENVÍO MEJORADA ---
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validacion del lado del cliente para el motivo "OTROS"
     const motivoSeleccionado = userData.motivos.find(m => m.id_motivo === formData.id_motivo);
     if (motivoSeleccionado?.motivo.toUpperCase().includes('OTROS') && !formData.motivo.trim()) {
         toast.error("Debe ingresar un detalle si selecciona el motivo 'OTROS'.");
@@ -68,52 +67,23 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
     const loadingToast = toast.loading('Registrando papeleta...');
 
     try {
-      const params = new URLSearchParams();
-      params.append('accion', 'registrar');
-      params.append('id_empleadocontrato', userData.contrato.codigo_Contrato);
-      for (const key in formData) {
-        params.append(key, formData[key]);
-      }
+      const successMessage = await registerPapeleta(formData);
+      toast.dismiss(loadingToast);
+      toast.success(successMessage);
 
-      const response = await axios.post('https://gth.munimoche.gob.pe/Controllers/PlanillaController/PapeletasController.php', params);      
-      toast.dismiss(loadingToast); // Ocultamos el toast de "cargando"
-
-      // Usamos '!=' para comparar, ya que el código de éxito puede ser "0" (string) o 0 (number)
-      if (response.data.codigo != 0) {
-        // Lanzamos un error si la API devuelve un código de error
-        throw new Error(response.data.mensaje || 'Error al registrar la papeleta.');
-      }
-      
-      // --- Éxito ---
-      toast.success(response.data.mensaje); // Mostramos el mensaje de éxito de la API
-
-      // Construimos la nueva papeleta con los DATOS REALES de la respuesta
-      const newPapeleta = {
-        id_papeleta: response.data.id_papeleta, // ID real de la base de datos
-        ...formData,
-        motivo_nombre: motivoSeleccionado?.motivo || 'Desconocido',
-        // Extraemos el número de papeleta del mensaje de éxito
-        numero_papeleta: response.data.mensaje.split(': ')[1] || 'N/A',
-        estado: '0' 
-      };
-
-      addPapeleta(newPapeleta);
-      
-      // Esperamos un momento para que el usuario vea el toast y luego cerramos
       setTimeout(() => {
         onClose();
       }, 1500);
 
     } catch (err) {
       toast.dismiss(loadingToast);
-      toast.error(err.message); // Mostramos el error en un toast
-      setError(err.message); // Y también dentro del modal
+      toast.error(err.message);
+      setError(err.message); 
     } finally {
       setIsSubmitting(false);
     }
   };
   
-  // El resto del JSX del return no cambia, es solo la lógica de arriba.
   return (
     <>
       <AnimatePresence>

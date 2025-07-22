@@ -27,29 +27,44 @@ function formatTime(timeString) {
   });
 }
 
-// --- Componente Principal ---
+function DetailItem({ icon, value, title = '' }) {
+  return (
+    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+      <div className="flex-shrink-0 w-5 text-center">{icon}</div>
+      <p className="font-medium text-slate-700 dark:text-slate-300 truncate" title={title || value}>
+        {value}
+      </p>
+    </div>
+  );
+}
 
+// --- Componente Principal ---
 function PapeletaItem({ papeleta }) {
-  // 1. Añadimos un estado local para saber si se está descargando
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const getStatusInfo = (estado) => {
-    // ... (esta función no cambia)
-    if (estado === "1") {
-      return {
-        text: "Aprobado",
-        styles: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
-        icon: <FiCheckCircle className="mr-1.5" />
-      };
+ const getStatusInfo = (estado) => {
+    switch (String(estado)) { 
+      case '1':
+        return {
+          text: "Aprobado",
+          styles: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
+          icon: <FiCheckCircle className="mr-1.5" />
+        };
+      case '2': // Estado 2 es 'Rechazado'
+        return {
+          text: "Rechazado",
+          styles: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
+          icon: <FiXCircle className="mr-1.5" />
+        };
+      default: 
+        return {
+          text: "Pendiente",
+          styles: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
+          icon: <FiClock className="mr-1.5" />
+        };
     }
-    return {
-      text: "Pendiente",
-      styles: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
-      icon: <FiClock className="mr-1.5" />
-    };
   }
   
-  // 2. Nueva función para manejar la descarga del PDF
   const handleDownload = async () => {
     setIsDownloading(true);
     toast.loading('Generando PDF...', { id: 'pdf-toast' });
@@ -61,7 +76,6 @@ function PapeletaItem({ papeleta }) {
 
     const response = await axios.post('https://gth.munimoche.gob.pe/Controllers/PlanillaController/PapeletasController.php', params, { responseType: 'blob' });
 
-      // Creamos una URL temporal para el archivo recibido
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -121,26 +135,11 @@ function PapeletaItem({ papeleta }) {
       </div>
       
       {/* El resto del JSX no cambia */}
-      <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-        <div className="flex items-center gap-2">
-          <FiCalendar className="text-slate-400 flex-shrink-0"/>
-          <div>
-              <p className="font-medium text-slate-700 dark:text-slate-300">{formatDate(papeleta.fecha_papeleta)}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <FiClock className="text-slate-400 flex-shrink-0"/>
-          <div>
-              <p className="font-medium text-slate-700 dark:text-slate-300">{formattedTime}</p>
-          </div>
-        </div>
-        <div className="flex items-start gap-2 col-span-2">
-          <FiMapPin className="text-slate-400 flex-shrink-0 mt-0.5"/>
-          <div>
-              <p className="font-medium text-slate-700 dark:text-slate-300 truncate" title={papeleta.lugar_destino}>
-                {papeleta.lugar_destino}
-              </p>
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-sm">
+        <DetailItem icon={<FiCalendar className="text-slate-400"/>} value={formatDate(papeleta.fecha_papeleta)} />
+        <DetailItem icon={<FiClock className="text-slate-400"/>} value={formattedTime} />
+        <div className="sm:col-span-2">
+          <DetailItem icon={<FiMapPin className="text-slate-400"/>} value={papeleta.lugar_destino} />
         </div>
       </div>
       
