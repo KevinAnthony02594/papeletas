@@ -75,8 +75,16 @@ function ResumenPage() {
               <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
               <XAxis dataKey="name" stroke={chartTextColor} fontSize={12} />
               <YAxis stroke={chartTextColor} fontSize={12} />
-              <Tooltip cursor={{fill: 'rgba(148, 163, 184, 0.1)'}} contentStyle={{ backgroundColor: 'rgba(30, 41, 59, 0.9)', border: 'none', borderRadius: '0.5rem' }} />
-              <Bar dataKey="papeletas" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Tooltip
+                cursor={{fill: 'rgba(148, 163, 184, 0.1)'}} 
+                contentStyle={{ 
+                  backgroundColor: 'rgba(30, 41, 59, 0.9)', 
+                  borderColor: 'rgba(128, 128, 128, 0.2)',
+                  borderRadius: '0.5rem' 
+                }}
+                itemStyle={{ color: '#e2e8f0' }} 
+                labelStyle={{ color: '#ffffff', fontWeight: 'bold' }} 
+              />              <Bar dataKey="papeletas" fill="#3b82f6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -90,7 +98,15 @@ function ResumenPage() {
                   <Cell key={`cell-${index}`} fill={['#3b82f6', '#84cc16', '#f97316', '#ef4444', '#a855f7'][index % 5]} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={{ backgroundColor: 'rgba(30, 41, 59, 0.9)', border: 'none', borderRadius: '0.5rem' }} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'rgba(30, 41, 59, 0.9)', 
+                  borderColor: 'rgba(128, 128, 128, 0.2)',
+                  borderRadius: '0.5rem' 
+                }}
+                itemStyle={{ color: '#e2e8f0' }}
+                labelStyle={{ color: '#ffffff', fontWeight: 'bold' }}
+              />
               <Legend iconSize={10} wrapperStyle={{ color: chartTextColor, fontSize: '12px' }} />
             </PieChart>
           </ResponsiveContainer>
