@@ -69,41 +69,21 @@ const useUserStore = create((set, get) => ({
     }
   },
   
-  addPapeleta: (newPapeleta) => {
-    set((state) => ({
-      papeletas: [newPapeleta, ...state.papeletas],
-      paginationInfo: {
-        ...state.paginationInfo,
-        totalRecords: state.paginationInfo.totalRecords + 1
-      }
-    }));
-  },
-
-  registerPapeleta: async (formData) => {
-    const nro_documento = get().userData.nro_documento;
-    if (!nro_documento) {
-      throw new Error("No se pudo registrar. Faltan datos del usuario.");
-    }
-  
-    const params = new URLSearchParams();
-    params.append('accion', 'registrar');
-    params.append('nro_documento', nro_documento); 
-    params.append('id_empleadocontrato', get().userData.contrato.codigo_Contrato);
-    for (const key in formData) {
-      params.append(key, formData[key]);
-    }
-
-    const response = await axios.post(API_URL, params);
-    
+  registerPapeleta: async (dataToSubmit) => {     
+    const response = await axios.post(API_URL, dataToSubmit);
+     
     if (response.data.codigo != 0) {
       throw new Error(response.data.mensaje || 'Error al registrar la papeleta.');
     }
     
-    await get().fetchPapeletas({
-      nro_documento: nro_documento,
-      pagina: 1,
-      limite: 10,
-    });
+    const nro_documento = dataToSubmit.get('nro_documento');
+    if (nro_documento) {
+        await get().fetchPapeletas({
+            nro_documento: nro_documento,
+            pagina: 1,
+            limite: 10, 
+        });
+    }
 
     return response.data.mensaje;
   },

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import useUserStore from '../store/userStore';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiSave, FiUser, FiFileText, FiClock, FiMapPin, FiMap } from 'react-icons/fi';
+import { FiX, FiSave, FiUser, FiFileText, FiClock, FiMapPin, FiMap, FiUploadCloud, FiPaperclip, FiXCircle } from 'react-icons/fi';
 import toast from 'react-hot-toast'; 
 import MapPickerModal from './MapPickerModal';
 
@@ -33,12 +33,13 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
   const [formData, setFormData] = useState(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-
   const [isMapOpen, setIsMapOpen] = useState(false);
-
+  const [selectedFile, setSelectedFile] = useState(null);
+  
   useEffect(() => {
     if (isOpen) {
       setFormData(initialFormData);
+      setSelectedFile(null);
       setError(null);
     }
   }, [isOpen]);
@@ -49,6 +50,12 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
 
   const handleLocationSelect = (selectedAddress) => {
     setFormData(prev => ({ ...prev, lugar_destino: selectedAddress }));
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -67,10 +74,25 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
     const loadingToast = toast.loading('Registrando papeleta...');
 
     try {
-      const successMessage = await registerPapeleta(formData);
+
+      const dataToSubmit = new FormData();
+      
+      dataToSubmit.append('accion', 'registrar');
+      dataToSubmit.append('id_empleadocontrato', userData.contrato.codigo_Contrato);
+      
+      for (const key in formData) {
+        dataToSubmit.append(key, formData[key]);
+      }
+      
+      if (selectedFile) {
+        dataToSubmit.append('justificante', selectedFile);
+      }
+
+      const successMessage = await registerPapeleta(dataToSubmit);
+      
       toast.dismiss(loadingToast);
       toast.success(successMessage);
-
+      
       setTimeout(() => {
         onClose();
       }, 1500);
@@ -104,7 +126,7 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
                 </button>
               </header>
               
-              <form id="papeleta-form" onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-6">
+              <form id="papeleta-form" onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-6 hide-scrollbar">
                 
                 <fieldset className="space-y-4">
                     <legend className="text-base font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-2 mb-2"><FiUser/>Datos del Trabajador</legend>
@@ -172,6 +194,37 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
                           </div>
                       </FormField>
 
+                  </fieldset>
+                  {/* --- NUEVO CAMPO PARA SUBIR ARCHIVO --- */}
+                  <fieldset className="space-y-4">
+                      <legend className="text-base font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-2 mb-2"><FiUploadCloud/>Justificante (Opcional)</legend>
+                      
+                      {/* Si no hay archivo seleccionado, mostramos el botón de subida */}
+                      {!selectedFile && (
+                          <label className="flex flex-col items-center justify-center w-full h-32 px-4 transition bg-white dark:bg-slate-700/50 border-2 border-slate-300 dark:border-slate-600 border-dashed rounded-md appearance-none cursor-pointer hover:border-slate-400 focus:outline-none">
+                              <span className="flex items-center space-x-2">
+                                  <FiPaperclip className="text-slate-500"/>
+                                  <span className="font-medium text-slate-600 dark:text-slate-300">
+                                      Arrastra un archivo o <span className="text-blue-600 underline">haz clic para buscar</span>
+                                  </span>
+                              </span>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">PNG, JPG o PDF (MAX. 5MB)</p>
+                              <input type="file" name="justificante" className="hidden" onChange={handleFileChange} accept=".png,.jpg,.jpeg,.pdf"/>
+                          </label>
+                      )}
+
+                      {/* Si hay un archivo seleccionado, mostramos su información */}
+                      {selectedFile && (
+                          <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-between">
+                              <div className="flex items-center gap-3 truncate">
+                                  <FiPaperclip className="text-slate-500 flex-shrink-0"/>
+                                  <span className="text-sm text-slate-800 dark:text-slate-200 truncate">{selectedFile.name}</span>
+                              </div>
+                              <button type="button" onClick={() => setSelectedFile(null)} className="p-1 text-slate-500 hover:text-red-500 rounded-full">
+                                  <FiXCircle/>
+                              </button>
+                          </div>
+                      )}
                   </fieldset>
 
                 {error && <div className="p-3 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 rounded-md text-sm">{error}</div>}
