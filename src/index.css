@@ -15,6 +15,6 @@ body {
 
 /* Para Firefox y otros */
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE y Edge (versiones antiguas) */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;  
+  scrollbar-width: none;  
 }

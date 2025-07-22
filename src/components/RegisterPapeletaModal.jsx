@@ -111,7 +111,6 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-            {/* El resto del código JSX es el mismo... */}
             <motion.div
               className="bg-slate-50 dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
@@ -171,7 +170,6 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
                 <fieldset className="space-y-4">
                       <legend className="text-base font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-2 mb-2"><FiMap/>Datos Adicionales</legend>
                       
-                      {/* ---- CAMPO DE LUGAR DE DESTINO MEJORADO ---- */}
                       <FormField label="Lugar de Destino (*)">
                           <div className="flex gap-2">
                               <input 
@@ -195,11 +193,9 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
                       </FormField>
 
                   </fieldset>
-                  {/* --- NUEVO CAMPO PARA SUBIR ARCHIVO --- */}
                   <fieldset className="space-y-4">
                       <legend className="text-base font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-2 mb-2"><FiUploadCloud/>Justificante (Opcional)</legend>
                       
-                      {/* Si no hay archivo seleccionado, mostramos el botón de subida */}
                       {!selectedFile && (
                           <label className="flex flex-col items-center justify-center w-full h-32 px-4 transition bg-white dark:bg-slate-700/50 border-2 border-slate-300 dark:border-slate-600 border-dashed rounded-md appearance-none cursor-pointer hover:border-slate-400 focus:outline-none">
                               <span className="flex items-center space-x-2">
@@ -213,7 +209,6 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
                           </label>
                       )}
 
-                      {/* Si hay un archivo seleccionado, mostramos su información */}
                       {selectedFile && (
                           <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-between">
                               <div className="flex items-center gap-3 truncate">

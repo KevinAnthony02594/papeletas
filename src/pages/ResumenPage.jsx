@@ -1,9 +1,9 @@
-// src/pages/ResumenPage.jsx
 import React, { useMemo } from 'react';
 import useUserStore from '../store/userStore';
 import { motion } from 'framer-motion';
 import { FiFileText, FiClock, FiCheckSquare } from 'react-icons/fi';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useTheme } from '../context/ThemeContext'; 
 
 function StatCard({ icon, label, value, color }) {
   return (
@@ -21,18 +21,21 @@ function StatCard({ icon, label, value, color }) {
 
 function ResumenPage() {
   const { papeletas, paginationInfo } = useUserStore();
-
+  const { theme } = useTheme();
+  const chartTextColor = theme === 'dark' ? '#94a3b8' : '#64748b'; 
   const stats = useMemo(() => {
-    if (!paginationInfo) return { total: 0 };
+    if (!paginationInfo) return { total: 0, pendientes: 'N/A', aprobadas: 'N/A' };
+     
     return {
       total: paginationInfo.totalRecords,
-      pendientes: 'N/A', // Estos datos requerirían otra llamada a la API
+      pendientes: 'N/A', 
       aprobadas: 'N/A',
     };
   }, [paginationInfo]);
 
   const chartData = useMemo(() => {
     if (!papeletas || papeletas.length === 0) return { byMonth: [], byMotive: [] };
+    
     const motivesCount = papeletas.reduce((acc, curr) => {
       const motiveName = curr.motivo_nombre;
       acc[motiveName] = (acc[motiveName] || 0) + 1;
@@ -70,8 +73,8 @@ function ResumenPage() {
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={chartData.byMonth} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-              <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
-              <YAxis stroke="#94a3b8" fontSize={12} />
+              <XAxis dataKey="name" stroke={chartTextColor} fontSize={12} />
+              <YAxis stroke={chartTextColor} fontSize={12} />
               <Tooltip cursor={{fill: 'rgba(148, 163, 184, 0.1)'}} contentStyle={{ backgroundColor: 'rgba(30, 41, 59, 0.9)', border: 'none', borderRadius: '0.5rem' }} />
               <Bar dataKey="papeletas" fill="#3b82f6" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -88,7 +91,7 @@ function ResumenPage() {
                 ))}
               </Pie>
               <Tooltip contentStyle={{ backgroundColor: 'rgba(30, 41, 59, 0.9)', border: 'none', borderRadius: '0.5rem' }} />
-              <Legend iconSize={10} />
+              <Legend iconSize={10} wrapperStyle={{ color: chartTextColor, fontSize: '12px' }} />
             </PieChart>
           </ResponsiveContainer>
         </div>

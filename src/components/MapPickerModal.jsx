@@ -1,37 +1,33 @@
 // src/components/MapPickerModal.jsx
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import L from 'leaflet'; // Importamos Leaflet para manejar el ícono
-import 'leaflet/dist/leaflet.css'; // ¡Muy importante! Importar los estilos de Leaflet
+import L from 'leaflet'; 
+import 'leaflet/dist/leaflet.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiMapPin, FiCheck } from 'react-icons/fi';
 
-// --- Arreglo para el ícono por defecto de Leaflet ---
-// Esto es necesario porque a veces Webpack no encuentra los íconos por defecto.
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
-// --- Fin del arreglo ---
 
 const containerStyle = {
   width: '100%',
   height: '100%'
 };
 
-// Coordenadas iniciales (Plaza de Armas de Moche, Perú)
+// Coordenadas iniciales del mapa (Plaza de armas de Moche - Trujillo, Perú)
 const initialCenter = [-8.1586, -79.0094];
 
-// Componente interno para manejar los clics en el mapa
 function LocationMarker({ onMarkerSet }) {
   const [position, setPosition] = useState(null);
 
   useMapEvents({
     click(e) {
       setPosition(e.latlng);
-      onMarkerSet(e.latlng); // Avisamos al componente padre de la nueva posición
+      onMarkerSet(e.latlng); 
     }
   });
 
@@ -45,12 +41,10 @@ function MapPickerModal({ isOpen, onClose, onLocationSelect }) {
   const [marker, setMarker] = useState(null);
   const [address, setAddress] = useState('Haz clic en el mapa para seleccionar una ubicación.');
 
-  // Efecto para obtener la dirección cuando el marcador cambia (Reverse Geocoding con Nominatim)
   useEffect(() => {
     if (marker) {
       const { lat, lng } = marker;
       setAddress('Buscando dirección...');
-      // Usamos la API gratuita de Nominatim (basada en OpenStreetMap)
       fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
         .then(response => response.json())
         .then(data => {

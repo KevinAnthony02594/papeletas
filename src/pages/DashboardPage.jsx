@@ -175,7 +175,6 @@ function DashboardPage() {
             className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8" 
             variants={itemVariants}
         >
-            {/* Gráfico de Barras (Papeletas por Mes) */}
             <div className="lg:col-span-3 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-md">
                 <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-4">Papeletas por Mes</h3>
                 <ResponsiveContainer width="100%" height={300}>

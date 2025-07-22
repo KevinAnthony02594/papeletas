@@ -38,13 +38,11 @@ function PapeletaList({ papeletas, onOpenModal }) {
     // --- AQUÍ ESTÁN LOS CAMBIOS PRINCIPALES ---
     <motion.div 
       // 1. Le damos una altura fija y scroll vertical.
-      // h-[65vh] significa 65% de la altura de la pantalla. ¡Ajusta este valor si lo necesitas!
       className="h-[65vh] overflow-y-auto p-4 hide-scrollbar"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      {/* 2. Reemplazamos 'space-y-3' por una cuadrícula (grid) responsive */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {papeletas.map(papeleta => (
           <PapeletaItem key={papeleta.id_papeleta || papeleta.numero_papeleta} papeleta={papeleta} />
