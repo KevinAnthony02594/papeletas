@@ -18,3 +18,29 @@ body {
   -ms-overflow-style: none;  
   scrollbar-width: none;  
 }
+
+/* Cuando el HTML tiene la clase 'dark', aplicamos estos estilos */
+.dark .leaflet-geosearch-bar > form > input {
+  background-color: #334155 !important; /* slate-700 */
+  color: #e2e8f0 !important; /* slate-200 */
+  border-color: #475569 !important; /* slate-600 */
+  box-shadow: none !important;
+}
+
+.dark .leaflet-geosearch-bar > form > input::placeholder {
+  color: #94a3b8 !important; /* slate-400 */
+}
+
+.dark .leaflet-geosearch-bar .results > * {
+  background-color: #334155 !important; /* slate-700 */
+  border-color: #475569 !important; /* slate-600 */
+}
+
+.dark .leaflet-geosearch-bar .results > .active,
+.dark .leaflet-geosearch-bar .results > *:hover {
+  background-color: #475569 !important; /* slate-600 */
+}
+
+.dark .leaflet-geosearch-bar .results a {
+    color: #e2e8f0 !important; /* slate-200 */
+}

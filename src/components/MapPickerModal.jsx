@@ -1,11 +1,14 @@
 // src/components/MapPickerModal.jsx
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import L from 'leaflet'; 
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
+import 'leaflet-geosearch/dist/geosearch.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiMapPin, FiCheck } from 'react-icons/fi';
 
+// --- Arreglo para el ícono por defecto de Leaflet (sin cambios) ---
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
@@ -18,29 +21,51 @@ const containerStyle = {
   height: '100%'
 };
 
-// Coordenadas iniciales del mapa (Plaza de armas de Moche - Trujillo, Perú)
-const initialCenter = [-8.1586, -79.0094];
+const initialCenter = [-8.1586, -79.0094]; // Moche, Perú
 
-function LocationMarker({ onMarkerSet }) {
-  const [position, setPosition] = useState(null);
+// --- NUEVO: Componente que maneja TODOS los eventos del mapa ---
+function MapEventsHandler({ onMarkerSet }) {
+  const map = useMap();
 
-  useMapEvents({
-    click(e) {
-      setPosition(e.latlng);
-      onMarkerSet(e.latlng); 
-    }
+  // 1. Maneja los clics del usuario en el mapa
+  map.on('click', (e) => {
+    onMarkerSet(e.latlng);
   });
 
-  return position === null ? null : (
-    <Marker position={position}></Marker>
-  );
+  // 2. Maneja la barra de búsqueda
+  useEffect(() => {
+    const provider = new OpenStreetMapProvider();
+    const searchControl = new GeoSearchControl({
+      provider: provider,
+      style: 'bar',
+      showMarker: false,
+      autoClose: true,
+      searchLabel: 'Buscar dirección...'
+    });
+
+    map.addControl(searchControl);
+
+    const onLocationSelect = (result) => {
+      const { x, y } = result.location; // x: lng, y: lat
+      const latlng = { lat: y, lng: x };
+      onMarkerSet(latlng);
+      map.setView(latlng, 15); // Centra el mapa en la ubicación encontrada
+    };
+
+    map.on('geosearch/showlocation', onLocationSelect);
+
+    return () => map.removeControl(searchControl);
+  }, [map, onMarkerSet]);
+
+  return null;
 }
 
 
 function MapPickerModal({ isOpen, onClose, onLocationSelect }) {
   const [marker, setMarker] = useState(null);
-  const [address, setAddress] = useState('Haz clic en el mapa para seleccionar una ubicación.');
+  const [address, setAddress] = useState('Haz clic o busca una ubicación en el mapa.');
 
+  // Efecto para obtener la dirección (Reverse Geocoding) - sin cambios
   useEffect(() => {
     if (marker) {
       const { lat, lng } = marker;
@@ -48,17 +73,11 @@ function MapPickerModal({ isOpen, onClose, onLocationSelect }) {
       fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
         .then(response => response.json())
         .then(data => {
-          if (data && data.display_name) {
-            setAddress(data.display_name);
-          } else {
-            setAddress('No se pudo obtener la dirección.');
-          }
+          setAddress(data?.display_name || 'No se pudo obtener la dirección.');
         })
-        .catch(() => {
-          setAddress('Error al buscar la dirección.');
-        });
+        .catch(() => setAddress('Error al buscar la dirección.'));
     } else {
-      setAddress('Haz clic en el mapa para seleccionar una ubicación.');
+      setAddress('Haz clic o busca una ubicación en el mapa.');
     }
   }, [marker]);
 
@@ -93,8 +112,14 @@ function MapPickerModal({ isOpen, onClose, onLocationSelect }) {
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <LocationMarker onMarkerSet={(latlng) => setMarker(latlng)} />
+                
+                {/* El marcador se muestra donde esté la variable 'marker' */}
+                {marker && <Marker position={marker}></Marker>}
+                
+                {/* El nuevo componente se encarga de actualizar 'marker' */}
+                <MapEventsHandler onMarkerSet={setMarker} />
               </MapContainer>
+
                <div className="absolute bottom-4 left-4 right-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-lg shadow-lg text-sm dark:text-slate-200 flex items-center gap-2 z-[1000]">
                     <FiMapPin className="text-blue-500 flex-shrink-0"/>
                     <p className="truncate">{address}</p>

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import useUserStore from '../store/userStore';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiSave, FiUser, FiFileText, FiClock, FiMapPin, FiMap, FiUploadCloud, FiPaperclip, FiXCircle } from 'react-icons/fi';
+import { FiX, FiSave, FiUser, FiFileText, FiClock, FiMapPin, FiMap, FiUploadCloud, FiPaperclip, FiCamera, FiXCircle } from 'react-icons/fi';
 import toast from 'react-hot-toast'; 
 import MapPickerModal from './MapPickerModal';
 
@@ -162,7 +162,7 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
                             <input type="time" name="hora_salida" value={formData.hora_salida} onChange={handleChange} required className="w-full rounded-md border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 focus:border-blue-500 focus:ring-blue-500"/>
                         </FormField>
                         <FormField label="Hora Retorno (*)">
-                            <input type="time" name="hora_retorno" value={formData.hora_retorno} onChange={handleChange} required className="w-full rounded-md border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 focus:border-blue-500 focus:ring-blue-500"/>
+                            <input type="time" name="hora_retorno" value={formData.hora_retorno} onChange={handleChange}  className="w-full rounded-md border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 focus:border-blue-500 focus:ring-blue-500"/>
                         </FormField>
                     </div>
                 </fieldset>
@@ -197,6 +197,7 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
                       <legend className="text-base font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-2 mb-2"><FiUploadCloud/>Justificante (Opcional)</legend>
                       
                       {!selectedFile && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <label className="flex flex-col items-center justify-center w-full h-32 px-4 transition bg-white dark:bg-slate-700/50 border-2 border-slate-300 dark:border-slate-600 border-dashed rounded-md appearance-none cursor-pointer hover:border-slate-400 focus:outline-none">
                               <span className="flex items-center space-x-2">
                                   <FiPaperclip className="text-slate-500"/>
@@ -207,6 +208,24 @@ function RegisterPapeletaModal({ isOpen, onClose }) {
                               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">PNG, JPG o PDF (MAX. 5MB)</p>
                               <input type="file" name="justificante" className="hidden" onChange={handleFileChange} accept=".png,.jpg,.jpeg,.pdf"/>
                           </label>
+                           <label className="flex flex-col items-center justify-center w-full h-32 px-4 transition bg-white dark:bg-slate-700/50 border-2 border-slate-300 dark:border-slate-600 border-dashed rounded-md cursor-pointer hover:border-slate-400">
+                              <span className="flex items-center space-x-2">
+                                <FiCamera className="text-slate-500"/>
+                                <span className="font-semibold text-slate-600 dark:text-slate-300">
+                                  Tomar Foto
+                                </span>
+                              </span>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Usa la cámara de tu dispositivo</p>
+                              <input 
+                                type="file" 
+                                name="justificante_camara" 
+                                className="hidden" 
+                                onChange={handleFileChange} 
+                                accept="image/*" 
+                                capture="environment" // <-- La clave está aquí
+                              />
+                            </label>
+                          </div>
                       )}
 
                       {selectedFile && (
