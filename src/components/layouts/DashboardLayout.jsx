@@ -52,14 +52,26 @@ function DashboardLayout() {
         >
           {/* Logo */}
           <div className="h-16 flex items-center justify-center border-b border-slate-200 dark:border-slate-700">
-             {/* ... (tu logo aquí) ... */}
+            <div className="flex items-center gap-2">
+              <FiBriefcase className="text-blue-600 dark:text-blue-400" size={24} />
+              <span className={`font-bold text-xl text-blue-600 dark:text-blue-400 overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'w-24 opacity-100' : 'w-0 opacity-0'}`}>
+                Papeletas
+              </span>
+            </div>
           </div>
 
           <NavigationLinks />
           
           {/* Perfil de Usuario */}
           <div className="p-4 border-t border-slate-200 dark:border-slate-700">
-            {/* ... (tu perfil aquí) ... */}
+              <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+                {getInitials(userData.contrato.nombre_completo)}
+              </div>
+              <div className={`flex-grow overflow-hidden transition-opacity duration-200 ${isSidebarExpanded ? 'opacity-100' : 'opacity-0'}`}>
+                <p className="font-semibold text-sm truncate">{userData.contrato.nombre_completo}</p>
+              </div>
+            </div>
           </div>
         </aside>
 

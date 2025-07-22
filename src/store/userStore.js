@@ -13,31 +13,34 @@ const useUserStore = create((set, get) => ({
   error: null,
 
   loginByDNI: async (dni) => {
-    set({ isLoading: true, error: null });
-    try {
-      const params = new URLSearchParams();
-      params.append('accion', 'validarUsuario');
-      params.append('nro_documento', dni);
+      set({ isLoading: true, error: null });
+      try {
+        const params = new URLSearchParams();
+        params.append('accion', 'obtenerResumenInicial'); 
+        params.append('nro_documento', dni);
 
-      const response = await axios.post(API_URL, params);
+        const response = await axios.post(API_URL, params);
 
-      if (response.data.codigo != 0 || !response.data.data.contrato) {
-        throw new Error(response.data.mensaje || 'DNI no encontrado o inválido.');
+        if (response.data.codigo != 0 || !response.data.data.contrato) {
+          throw new Error(response.data.mensaje || 'DNI no encontrado o inválido.');
+        }
+        
+        set({ 
+          userData: { 
+            contrato: response.data.data.contrato, 
+            motivos: response.data.data.motivos,
+            nro_documento: dni
+          },
+          papeletas: response.data.data.papeletas, 
+          paginationInfo: response.data.data.pagination, 
+          isLoading: false 
+        });
+        return true;
+
+      } catch (error) {
+        set({ error: error.message, isLoading: false });
+        return false;
       }
-      
-      set({ 
-        userData: { 
-          contrato: response.data.data.contrato, 
-          motivos: response.data.data.motivos,
-          nro_documento: dni 
-        }, 
-        isLoading: false 
-      });
-      return true;
-    } catch (error) {
-      set({ error: error.message, isLoading: false });
-      return false;
-    }
   },
 
   fetchPapeletas: async (params) => {
