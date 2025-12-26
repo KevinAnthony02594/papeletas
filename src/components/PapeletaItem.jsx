@@ -65,38 +65,34 @@ function PapeletaItem({ papeleta }) {
     }
   }
   
-  const handleDownload = async () => {
-    setIsDownloading(true);
-    toast.loading('Generando PDF...', { id: 'pdf-toast' });
-    
-    try {
-      const params = new URLSearchParams();
-      params.append('accion', 'generarPapeletaPDF');
-      params.append('id_papeleta', papeleta.id_papeleta);
+const handleDownload = () => {
+    // Notificación visual rápida
+    toast.loading('Abriendo documento...', { duration: 2000 });
 
-    const response = await axios.post('https://gth.munimoche.gob.pe/Controllers/PlanillaController/PapeletasController.php', params, { responseType: 'blob' });
+    // 1. Crear un formulario invisible en el DOM
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'https://gth.munimoche.gob.pe/Controllers/PlanillaController/PapeletasController.php';
+    form.target = '_blank'; // IMPORTANTE: Esto abre la nueva pestaña
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      // Le damos un nombre al archivo que se va a descargar
-      link.setAttribute('download', `papeleta_${papeleta.numero_papeleta || papeleta.id_papeleta}.pdf`);
-      
-      // Añadimos el link al documento, lo clickeamos y lo removemos
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url); // Liberamos la memoria
+    // 2. Crear los inputs necesarios (accion e id_papeleta)
+    const inputAccion = document.createElement('input');
+    inputAccion.type = 'hidden';
+    inputAccion.name = 'accion';
+    inputAccion.value = 'generarPapeletaPDF';
+    form.appendChild(inputAccion);
 
-      toast.success('PDF descargado con éxito.', { id: 'pdf-toast' });
+    const inputId = document.createElement('input');
+    inputId.type = 'hidden';
+    inputId.name = 'id_papeleta';
+    inputId.value = papeleta.id_papeleta; // Tu variable del ID
+    form.appendChild(inputId);
 
-    } catch (error) {
-      toast.error('No se pudo generar el PDF.', { id: 'pdf-toast' });
-      console.error("Error al descargar el PDF:", error);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
+    // 3. Agregar al documento, enviar y eliminar
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+};
 
 
   const status = getStatusInfo(papeleta.estado);
